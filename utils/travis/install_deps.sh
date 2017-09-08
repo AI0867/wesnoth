@@ -17,7 +17,7 @@ else
 echo 'foo1'
 	sudo apt-get install -qq libcairo2-dev libfribidi-dev libpango1.0-dev
 echo 'foo2'
-	sudo apt-get install -qq libsdl2-image-dev
+	#sudo apt-get install -qq libsdl2-image-dev
 echo 'foo3'
 	sudo apt-get install -qq libsdl2-mixer-dev
 echo 'foo4'
