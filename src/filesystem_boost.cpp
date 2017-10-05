@@ -230,7 +230,7 @@ bool case_check(const std::string& fname){
 		ERR_FS << "Casing of '" << fname << "' does not match canonical case of '" << unicode_cast<std::string>(long_u16_check) << "'\n";
 		return false;
 	}
-	return true
+	return true;
 }
 #endif
 }
