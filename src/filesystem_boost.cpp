@@ -190,6 +190,49 @@ namespace {
 
 	static static_runner static_bfs_path_imbuer;
 #endif
+
+#ifdef _WIN32
+/**
+ * Check if the case given is the canonical case for the file
+ * Windows is case insensitive by default, but other systems aren't.
+ * We want to ensure windows-based add-on authors know their add-ons will fail
+ * before they publish them.
+ *
+ * We do this by converting the filename to short form and then back to long form.
+ * This gives us the original case to compare with.
+ */
+bool case_check(const std::string& fname){
+	const int max_short_size = 260;
+	const int max_long_size = 260;
+	const utf16::string long_u16 = unicode_cast<utf16::string>(fname);
+	utf16::string short_u16(max_short_size);
+	utf16::string long_u16_check(max_long_size);
+	const int short_size = GetShortPathNameW(&long_u16.front(), &short_u16.front(), max_short_size);
+	if(short_size == 0){
+		ERR_FS << "Failed to convert filename " << fname << " to short form\n";
+		return true;
+	} else if(short_size > max_short_size){
+		ERR_FS << "Failed to convert filename " << fname << " to short form because it does not fit in " << max_short_size << " characters\n";
+		return true;
+	}
+	short_u16.resize(short_size);
+	const int long_check_size = GetLongPathNameW(&short_u16.front(), &long_u16_check.front(), max_long_size);
+	if(long_check_size == 0){
+		ERR_FS << "Failed to convert filename " << fname << " to long form\n";
+		return true;
+	} else if(long_check_size > max_long_size){
+		ERR_FS << "Failed to convert filename " << fname << " to long form because it does not fit in " << max_long_size << " characters\n";
+		return true;
+	}
+	long_u16_check.resize(long_check_size);
+	if(long_u16 != long_u16_check){
+		// complain
+		ERR_FS << "Casing of '" << fname << "' does not match canonical case of '" << unicode_cast<std::string>(long_u16_check) << "'\n";
+		return false;
+	}
+	return true
+}
+#endif
 }
 
 
@@ -1312,48 +1355,5 @@ std::string get_program_invocation(const std::string &program_name)
 	);
 	return (path(game_config::wesnoth_program_dir) / real_program_name).string();
 }
-
-#ifdef _WIN32
-/**
- * Check if the case given is the canonical case for the file
- * Windows is case insensitive by default, but other systems aren't.
- * We want to ensure windows-based add-on authors know their add-ons will fail
- * before they publish them.
- *
- * We do this by converting the filename to short form and then back to long form.
- * This gives us the original case to compare with.
- */
-bool case_check(const std::string& fname){
-	const int max_short_size = 260;
-	const int max_long_size = 260;
-	const utf16::string long_u16 = unicode_cast<utf16::string>(fname);
-	utf16::string short_u16(max_short_size);
-	utf16::string long_u16_check(max_long_size);
-	const int short_size = GetShortPathNameW(&long_u16.front(), &short_u16.front(), max_short_size);
-	if(short_size == 0){
-		ERR_FS << "Failed to convert filename " << fname << " to short form\n";
-		return true;
-	} else if(short_size > max_short_size){
-		ERR_FS << "Failed to convert filename " << fname << " to short form because it does not fit in " << max_short_size << " characters\n";
-		return true;
-	}
-	short_u16.resize(short_size);
-	const int long_check_size = GetLongPathNameW(&short_u16.front(), &long_u16_check.front(), max_long_size);
-	if(long_check_size == 0){
-		ERR_FS << "Failed to convert filename " << fname << " to long form\n";
-		return true;
-	} else if(long_check_size > max_long_size){
-		ERR_FS << "Failed to convert filename " << fname << " to long form because it does not fit in " << max_long_size << " characters\n";
-		return true;
-	}
-	long_u16_check.resize(long_check_size);
-	if(long_u16 != long_u16_check){
-		// complain
-		ERR_FS << "Casing of '" << fname << "' does not match canonical case of '" << unicode_cast<std::string>(long_u16_check) << "'\n";
-		return false;
-	}
-	return true
-}
-#endif
 
 }
