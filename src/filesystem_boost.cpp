@@ -202,32 +202,23 @@ namespace {
  * This gives us the original case to compare with.
  */
 bool case_check(const std::string& fname){
-	const int max_short_size = 260;
-	const int max_long_size = 260;
-	const utf16::string long_u16 = unicode_cast<utf16::string>(fname);
-	utf16::string short_u16(max_short_size);
-	utf16::string long_u16_check(max_long_size);
-	const int short_size = GetShortPathNameW(&long_u16.front(), &short_u16.front(), max_short_size);
-	if(short_size == 0){
-		ERR_FS << "Failed to convert filename " << fname << " to short form\n";
+	const int max_size = 260;
+	const utf16::string orig_u16 = unicode_cast<utf16::string>(fname);
+	utf16::string result_u16(max_size);
+	HANDLE handle = CreateFileW(&orig_u16.front(), 0, FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	const int result_size = GetFinalPathNameByHandleW(handle, &result_u16.front(), max_size, FILE_NAME_NORMALIZED);
+	CloseHandle(handle);
+	if(result_size == 0){
+		ERR_FS << "Failed to open " << fname << " to check case\n";
 		return true;
-	} else if(short_size > max_short_size){
-		ERR_FS << "Failed to convert filename " << fname << " to short form because it does not fit in " << max_short_size << " characters\n";
-		return true;
-	}
-	short_u16.resize(short_size);
-	const int long_check_size = GetLongPathNameW(&short_u16.front(), &long_u16_check.front(), max_long_size);
-	if(long_check_size == 0){
-		ERR_FS << "Failed to convert filename " << fname << " to long form\n";
-		return true;
-	} else if(long_check_size > max_long_size){
-		ERR_FS << "Failed to convert filename " << fname << " to long form because it does not fit in " << max_long_size << " characters\n";
+	} else if(result_size > max_size){
+		ERR_FS << "Failed to open " << fname << " to check case because it does not fit in " << max_size << " characters\n";
 		return true;
 	}
-	long_u16_check.resize(long_check_size);
-	if(long_u16 != long_u16_check){
+	result_u16.resize(result_size);
+	if(orig_u16 != result_u16){
 		// complain
-		ERR_FS << "Casing of '" << fname << "' does not match canonical case of '" << unicode_cast<std::string>(long_u16_check) << "'\n";
+		ERR_FS << "Casing of '" << fname << "' does not match canonical case of '" << unicode_cast<std::string>(result_u16) << "'\n";
 		return false;
 	}
 	return true;
