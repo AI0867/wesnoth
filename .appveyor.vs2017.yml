@@ -23,7 +23,7 @@ matrix:
 #  - set PATH=C:\projects\external\dll;%PATH%
 build_script:
 #  - msbuild projectfiles\VC15\wesnoth.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  - set PATH=%PATH%
+  - exit 1
 
 #artifacts:
 #  - path: wesnoth.exe
