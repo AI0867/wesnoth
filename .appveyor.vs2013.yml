@@ -15,5 +15,16 @@ before_build:
   - cd wesnoth
   - set PATH=C:\projects\external\dll;%PATH%
 
-on_failure:
-  - "python utils\\appveyor\\irc-notify.py wesnoth-dev {bold}{project_name} - {configuration_name} {color_green}{author}{plain} {bold}{short_commit}: {plain}{message} {color_red}Failed,{bold}Details: {plain}{build_url}"
+notifications:
+  - provider: Webhook
+    url: http://ai0867.net:9999/
+    headers:
+      User-Agent: WesnothAppveyor/1.0
+      Authorization: TODO
+      Configuration: "{configuration_name}"
+      Commit: "{commitId}"
+      Message: "{message}"
+      Url: "{build_url}"
+      Status: "{status}"
+    on_build_success: true
+    on_build_failure: true
