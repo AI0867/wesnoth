@@ -7,24 +7,25 @@ configuration:
 platform: win32
 skip_branch_with_pr: true
 shallow_clone: true
-before_build:
-  - cd ..
-  - ps: wget https://github.com/aquileia/external/archive/VC15.zip -O VC15.zip
-  - 7z x VC15.ZIP
-  - ren external-VC15 external
-  - cd wesnoth
-  - mkdir projectfiles\VC15
-  - xcopy /E /I /H /Y projectfiles\VC12 projectfiles\VC15
-  - cd projectfiles\VC15
-  - "\"c:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\IDE\\devenv.exe\" wesnoth.sln /upgrade"
-  - cd ..\..
-  - set PATH=C:\projects\external\dll;%PATH%
+#before_build:
+#  - cd ..
+#  - ps: wget https://github.com/aquileia/external/archive/VC15.zip -O VC15.zip
+#  - 7z x VC15.ZIP
+#  - ren external-VC15 external
+#  - cd wesnoth
+#  - mkdir projectfiles\VC15
+#  - xcopy /E /I /H /Y projectfiles\VC12 projectfiles\VC15
+#  - cd projectfiles\VC15
+#  - "\"c:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\IDE\\devenv.exe\" wesnoth.sln /upgrade"
+#  - cd ..\..
+#  - set PATH=C:\projects\external\dll;%PATH%
 build_script:
-  - msbuild projectfiles\VC15\wesnoth.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+#  - msbuild projectfiles\VC15\wesnoth.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - set PATH=%PATH%
 
-artifacts:
-  - path: wesnoth.exe
-  - path: wesnothd.exe
+#artifacts:
+#  - path: wesnoth.exe
+#  - path: wesnothd.exe
 
 notifications:
   - provider: Webhook
