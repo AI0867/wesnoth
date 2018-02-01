@@ -155,6 +155,17 @@ void story_viewer::display_part(window& window)
 			width_formula  = "(width)";
 		}
 
+		if(layer.tile_horizontally() && layer.tile_vertically()) {
+			width_formula = "(width)";
+			height_formula = "(height)";
+			image["resize_mode"] = "tile_center";
+			if(layer.scale_horizontally() || layer.scale_vertically()){
+//complain
+			}
+		} else if(layer.tile_horizontally() || layer.tile_vertically()){
+// complain
+		}
+
 		// Background layers are always centered.
 		image["x"] = "(max(pos, 0) where pos = (width  / 2 - image_width  / 2))";
 		image["y"] = "(max(pos, 0) where pos = (height / 2 - image_height / 2))";
